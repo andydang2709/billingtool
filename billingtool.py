@@ -62,8 +62,7 @@ if uploaded_file is not None:
             'Unit Amount': row['Unit Amount'],
             'Charge Amount': row['Charge Amount'],
             'Date': row['Date'],
-            'Description': description,
-            'Total Charge': total_charge
+            'Description': description
         })
         
         if linen_option:
@@ -73,8 +72,7 @@ if uploaded_file is not None:
                 'Unit Amount': linen_charge_per_person_per_night,
                 'Charge Amount': linen_charge,
                 'Date': row['Date'],
-                'Description': linen_description,
-                'Total Charge': linen_charge
+                'Description': linen_description
             })
 
     output_df = pd.DataFrame(output_data)
