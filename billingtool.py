@@ -42,7 +42,8 @@ if uploaded_file is not None:
         'Days Stayed': 'Item Count',
         'Unit Price': 'Unit Amount',
         'Charge': 'Charge Amount',
-        'First Name': 'People'
+        'First Name': 'People',
+        'Check Out': 'Date'
     }, inplace=True)
 
  # Linen charge per person per night
@@ -51,7 +52,7 @@ if uploaded_file is not None:
 # Generate the description column and separate linen charge rows
     output_data = []
     for index, row in total_charge_per_group.iterrows():
-        linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Check Out']}", key=f"{row['Check In']}-{row['Check Out']}-{row['Room Type']}")
+        linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Date']}", key=f"{row['Check In']}-{row['Date']}-{row['Room Type']}")
         linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
         total_charge = row['Charge Amount'] + linen_charge
         description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
@@ -60,7 +61,7 @@ if uploaded_file is not None:
             'Item Count': row['Item Count'],
             'Unit Amount': row['Unit Amount'],
             'Charge Amount': row['Charge Amount'],
-            'Date': row['Check Out'],
+            'Date': row['Date'],
             'Description': description,
             'Total Charge': total_charge
         })
@@ -71,7 +72,7 @@ if uploaded_file is not None:
                 'Item Count': row['Item Count'],
                 'Unit Amount': linen_charge_per_person_per_night,
                 'Charge Amount': linen_charge,
-                'Date': row['Check Out'],
+                'Date': row['Date'],
                 'Description': linen_description,
                 'Total Charge': linen_charge
             })
@@ -79,7 +80,7 @@ if uploaded_file is not None:
     output_df = pd.DataFrame(output_data)
 
     # Reorder columns
-    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Description', 'Total Charge']]
+    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description', 'Total Charge']]
 
     st.write(output_df)
 else:
