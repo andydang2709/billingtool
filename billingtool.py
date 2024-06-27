@@ -30,9 +30,26 @@ if uploaded_file is not None:
 
     df_clean['Charge'] = df_clean['Days Stayed'] * df_clean['Unit Price']
 
-    total_charge_per_group = df_clean.groupby(['Check In', 'Check Out']).agg(
-        {'Charge': 'sum', 'Days Stayed': 'sum', 'Unit Price': 'first'}
+    # Group the data
+    total_charge_per_group = df_clean.groupby(['Check In', 'Check Out', 'Room Type', 'Unit Price']).agg(
+        {'Charge': 'sum', 'Days Stayed': 'sum', 'First Name': 'count'}
     ).reset_index()
+
+    # Rename columns
+    total_charge_per_group.rename(columns={
+        'Days Stayed': 'Item Count',
+        'Unit Price': 'Unit Amount',
+        'Charge': 'Charge Amount',
+        'First Name': 'People'
+    }, inplace=True)
+
+    # Generate the description column
+    total_charge_per_group['Description'] = total_charge_per_group.apply(
+        lambda row: f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {row['Item Count']} nights", axis=1
+    )
+
+    # Reorder columns
+    total_charge_per_group = total_charge_per_group[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Description']]
 
     st.write(total_charge_per_group)
 else:
