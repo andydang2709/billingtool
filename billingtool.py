@@ -54,7 +54,7 @@ if uploaded_file is not None:
     for index, row in total_charge_per_group.iterrows():
         linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Date']}", key=f"{row['Check In']}-{row['Date']}-{row['Room Type']}")
         linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
-        total_charge = row['Charge Amount'] + linen_charge
+        total_charge = row['Charge Amount']
         description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
         
         output_data.append({
