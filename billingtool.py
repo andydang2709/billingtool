@@ -45,13 +45,23 @@ if uploaded_file is not None:
         'First Name': 'People'
     }, inplace=True)
 
+ # Linen charge per person per night
+    linen_charge_per_person_per_night = st.number_input("Input Linen Charge per Person per Night", min_value=0)
+
     # Generate the description column
-    total_charge_per_group['Description'] = total_charge_per_group.apply(
-        lambda row: f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count']/row['People'])} nights", axis=1
-    )
+    def generate_description(row):
+        linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Check Out']}", key=f"{row['Check In']}-{row['Check Out']}-{row['Room Type']}")
+        linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
+        total_charge = row['Charge Amount'] + linen_charge
+        description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
+        if linen_option:
+            description += f" + {linen_charge} linen charge"
+        return pd.Series([total_charge, description])
+
+    total_charge_per_group[['Total Charge', 'Description']] = total_charge_per_group.apply(generate_description, axis=1)
 
     # Reorder columns
-    total_charge_per_group = total_charge_per_group[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Description']]
+    total_charge_per_group = total_charge_per_group[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Total Charge', 'Description']]
 
     st.write(total_charge_per_group)
 else:
