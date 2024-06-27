@@ -47,7 +47,7 @@ if uploaded_file is not None:
 
     # Generate the description column
     total_charge_per_group['Description'] = total_charge_per_group.apply(
-        lambda row: f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {row['Item Count']/row['People']} nights", axis=1
+        lambda row: f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count']/row['People'])} nights", axis=1
     )
 
     # Reorder columns
