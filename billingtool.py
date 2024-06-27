@@ -78,7 +78,7 @@ if uploaded_file is not None:
     output_df = pd.DataFrame(output_data)
 
     # Reorder columns
-    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description', 'Total Charge']]
+    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description']]
 
     st.write(output_df)
 else:
