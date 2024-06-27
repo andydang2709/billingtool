@@ -24,8 +24,8 @@ if uploaded_file is not None:
 
     df_clean['Days Stayed'] = (df_clean['Check Out']-df_clean['Check In']).dt.days
 
-    single_price = int(input("Input Single Room's Price"))
-    double_price = int(input("Input Double Room's Price"))
+    single_price = st.number_input("Input Single Room's Price", min_value=0)
+    double_price = st.number_input("Input Double Room's Price", min_value=0)
 
     df_clean['Unit Price'] = df_clean['Room Type'].apply(lambda x: single_price if x == 'Single' else double_price if x == 'Double' else None)
 
