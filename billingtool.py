@@ -48,21 +48,41 @@ if uploaded_file is not None:
  # Linen charge per person per night
     linen_charge_per_person_per_night = 5
 
-    # Generate the description column
-    def generate_description(row):
+# Generate the description column and separate linen charge rows
+    output_data = []
+    for index, row in total_charge_per_group.iterrows():
         linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Check Out']}", key=f"{row['Check In']}-{row['Check Out']}-{row['Room Type']}")
         linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
         total_charge = row['Charge Amount'] + linen_charge
         description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
+        
+        output_data.append({
+            'Item Count': row['Item Count'],
+            'Unit Amount': row['Unit Amount'],
+            'Charge Amount': row['Charge Amount'],
+            'Check In': row['Check In'],
+            'Check Out': row['Check Out'],
+            'Description': description,
+            'Total Charge': total_charge
+        })
+        
         if linen_option:
-            description += f" + {linen_charge} linen charge"
-        return pd.Series([total_charge, description])
+            linen_description = f"{row['People']} people * ${linen_charge_per_person_per_night} Linen Charge * {int(row['Item Count'] / row['People'])} nights"
+            output_data.append({
+                'Item Count': row['Item Count'],
+                'Unit Amount': linen_charge_per_person_per_night,
+                'Charge Amount': linen_charge,
+                'Check In': row['Check In'],
+                'Check Out': row['Check Out'],
+                'Description': linen_description,
+                'Total Charge': linen_charge
+            })
 
-    total_charge_per_group[['Total Charge', 'Description']] = total_charge_per_group.apply(generate_description, axis=1)
+    output_df = pd.DataFrame(output_data)
 
     # Reorder columns
-    total_charge_per_group = total_charge_per_group[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Total Charge', 'Description']]
+    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Check In', 'Check Out', 'Description', 'Total Charge']]
 
-    st.write(total_charge_per_group)
+    st.write(output_df)
 else:
     st.write("Please upload a CSV file to proceed.")
