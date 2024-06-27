@@ -23,8 +23,8 @@ if uploaded_file is not None:
 
     df_clean['Days Stayed'] = (pd.to_datetime(df_clean['Check Out']) - pd.to_datetime(df_clean['Check In'])).dt.days
 
-    single_price = int(input("Input Single Room's Price"))
-    double_price = int(input("Input Double Room's Price"))
+    single_price = st.number_input("Input Single Room's Price", min_value=0)
+    double_price = st.number_input("Input Double Room's Price", min_value=0)
     single_suite_price = single_price + 4
     double_suite_price = double_price + 4
 
