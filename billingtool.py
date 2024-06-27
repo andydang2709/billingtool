@@ -46,7 +46,7 @@ if uploaded_file is not None:
     }, inplace=True)
 
  # Linen charge per person per night
-    linen_charge_per_person_per_night = st.number_input("Input Linen Charge per Person per Night", min_value=0)
+    linen_charge_per_person_per_night = 5
 
     # Generate the description column
     def generate_description(row):
