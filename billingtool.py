@@ -1,6 +1,12 @@
 import pandas as pd
+import streamlit as st
 
-df = pd.read_csv("21cl.csv")
+st.title('Billing Tool')
+
+uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
 
 def clean_data(df):
     # Drop rows with missing data in column: 'First Name'
