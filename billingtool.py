@@ -60,8 +60,7 @@ if uploaded_file is not None:
             'Item Count': row['Item Count'],
             'Unit Amount': row['Unit Amount'],
             'Charge Amount': row['Charge Amount'],
-            'Check In': row['Check In'],
-            'Check Out': row['Check Out'],
+            'Date': row['Check Out'],
             'Description': description,
             'Total Charge': total_charge
         })
@@ -72,8 +71,7 @@ if uploaded_file is not None:
                 'Item Count': row['Item Count'],
                 'Unit Amount': linen_charge_per_person_per_night,
                 'Charge Amount': linen_charge,
-                'Check In': row['Check In'],
-                'Check Out': row['Check Out'],
+                'Date': row['Check Out'],
                 'Description': linen_description,
                 'Total Charge': linen_charge
             })
