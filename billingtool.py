@@ -13,16 +13,15 @@ if uploaded_file is not None:
         df = df.dropna(subset=['First Name'])
         # Select columns: 'First Name', 'Last Name' and 3 other columns
         df = df.loc[:, ['First Name', 'Last Name', 'Check In', 'Check Out', 'Room Type']]
-        # Change column type to datetime64[ns] for column: 'Check In'
-        df = df.astype({'Check In': 'datetime64[ns]'})
-        # Change column type to datetime64[ns] for column: 'Check Out'
-        df = df.astype({'Check Out': 'datetime64[ns]'})
+        # Change column type to datetime64[ns] for columnn 'Check In' and 'Check Out'
+        df['Check In'] = pd.to_datetime(df['Check In']).dt.date
+        df['Check Out'] = pd.to_datetime(df['Check Out']).dt.date
         df = df.reset_index(drop=True)
         return df
 
     df_clean = clean_data(df.copy())
 
-    df_clean['Days Stayed'] = (df_clean['Check Out']-df_clean['Check In']).dt.days
+    df_clean['Days Stayed'] = (pd.to_datetime(df_clean['Check Out']) - pd.to_datetime(df_clean['Check In'])).dt.days
 
     single_price = st.number_input("Input Single Room's Price", min_value=0)
     double_price = st.number_input("Input Double Room's Price", min_value=0)
