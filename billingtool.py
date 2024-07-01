@@ -114,6 +114,6 @@ if uploaded_file is not None:
     # Reorder columns
     output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description']]
 
-    st.write(output_df)
+    st.dataframe(output_df, use_container_width=True)
 else:
     st.write("Please upload a CSV file to proceed.")
