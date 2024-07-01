@@ -44,8 +44,19 @@ if uploaded_file is not None:
         'Check Out': 'Date'
     }, inplace=True)
 
- # Linen charge per person per night
+# Linen charge per person per night
     linen_charge_per_person_per_night = 5
+    commuter_charge_per_day = 5
+
+# Ask for commuters information
+    has_commuters = st.checkbox("Are there commuters?")
+    if has_commuters:
+        num_commuters = st.number_input("Number of commuters", min_value=0)
+        commuter_check_in = st.date_input("Commuter Check-In Date")
+        commuter_check_out = st.date_input("Commuter Check-Out Date")
+        commuter_days_stayed = (commuter_check_out - commuter_check_in).days
+        commuter_total_charge = num_commuters * commuter_days_stayed * commuter_charge_per_day
+
 
 # Generate the description column and separate linen charge rows
     output_data = []
@@ -71,6 +82,17 @@ if uploaded_file is not None:
                 'Charge Amount': linen_charge,
                 'Date': row['Date'],
                 'Description': linen_description
+            })
+
+# Add commuter charges if applicable
+        if has_commuters and num_commuters > 0:
+            commuter_description = f"{num_commuters} commuters * ${commuter_charge_per_day} Commuter Charge * {commuter_days_stayed} days"
+            output_data.append({
+                'Item Count': commuter_days_stayed,
+                'Unit Amount': commuter_charge_per_day,
+                'Charge Amount': commuter_total_charge,
+                'Date': commuter_check_out,
+                'Description': commuter_description
             })
 
     output_df = pd.DataFrame(output_data)
