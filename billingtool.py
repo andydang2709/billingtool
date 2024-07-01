@@ -48,14 +48,27 @@ if uploaded_file is not None:
     linen_charge_per_person_per_night = 5
     commuter_charge_per_day = 5
 
-# Ask for commuters information
-    has_commuters = st.checkbox("Are there commuters?")
-    if has_commuters:
-        num_commuters = st.number_input("Number of commuters", min_value=0)
-        commuter_check_in = st.date_input("Commuter Check-In Date")
-        commuter_check_out = st.date_input("Commuter Check-Out Date")
+# Ask for commuter groups information
+    commuter_groups = st.number_input("Number of commuter groups", min_value=0, step=1)
+
+    commuter_info = []
+    for i in range(commuter_groups):
+        st.subheader(f"Commuter Group {i + 1}")
+        num_commuters = st.number_input(f"Number of commuters in group {i + 1}", min_value=0, step=1, key=f"num_commuters_{i}")
+        commuter_check_in = st.date_input(f"Commuter Group {i + 1} Check-In Date", key=f"commuter_check_in_{i}")
+        commuter_check_out = st.date_input(f"Commuter Group {i + 1} Check-Out Date", key=f"commuter_check_out_{i}")
+
         commuter_days_stayed = (commuter_check_out - commuter_check_in).days
         commuter_total_charge = num_commuters * commuter_days_stayed * commuter_charge_per_day
+
+        commuter_info.append({
+            'num_commuters': num_commuters,
+            'commuter_check_in': commuter_check_in,
+            'commuter_check_out': commuter_check_out,
+            'commuter_charge_per_day': commuter_charge_per_day,
+            'commuter_total_charge': commuter_total_charge,
+            'commuter_days_stayed': commuter_days_stayed
+        })
 
 
 # Generate the description column and separate linen charge rows
@@ -84,14 +97,15 @@ if uploaded_file is not None:
                 'Description': linen_description
             })
 
-# Add commuter charges if applicable
-        if has_commuters and num_commuters > 0:
-            commuter_description = f"{num_commuters} commuters * ${commuter_charge_per_day} Commuter Charge * {commuter_days_stayed} days"
+# Add commuter charges for each group
+    for commuter in commuter_info:
+        if commuter['num_commuters'] > 0:
+            commuter_description = f"{commuter['num_commuters']} commuters * ${commuter['commuter_charge_per_day']} Commuter Charge * {commuter['commuter_days_stayed']} days"
             output_data.append({
-                'Item Count': commuter_days_stayed,
-                'Unit Amount': commuter_charge_per_day,
-                'Charge Amount': commuter_total_charge,
-                'Date': commuter_check_out,
+                'Item Count': commuter['commuter_days_stayed'],
+                'Unit Amount': commuter['commuter_charge_per_day'],
+                'Charge Amount': commuter['commuter_total_charge'],
+                'Date': commuter['commuter_check_out'],
                 'Description': commuter_description
             })
 
