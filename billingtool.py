@@ -49,35 +49,65 @@ if uploaded_file is not None:
 
 # Generate the description column and separate linen charge rows
     output_data = []
-    for index, row in total_charge_per_group.iterrows():
-        linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Date']}", key=f"{row['Check In']}-{row['Date']}-{row['Room Type']}")
-        linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
-        total_charge = row['Charge Amount']
-        description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
-        
+for index, row in total_charge_per_group.iterrows():
+    linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Date']}", key=f"{row['Check In']}-{row['Date']}-{row['Room Type']}")
+    linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
+    total_charge = row['Charge Amount']
+    description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
+
+    output_data.append({
+        'Field': 'Item Count',
+        'Value': row['Item Count'],
+        'Date': row['Date']
+    })
+    output_data.append({
+        'Field': 'Unit Amount',
+        'Value': row['Unit Amount'],
+        'Date': row['Date']
+    })
+    output_data.append({
+        'Field': 'Charge Amount',
+        'Value': row['Charge Amount'],
+        'Date': row['Date']
+    })
+    output_data.append({
+        'Field': 'Description',
+        'Value': description,
+        'Date': row['Date']
+    })
+    
+    if linen_option:
+        linen_description = f"{row['People']} people * ${linen_charge_per_person_per_night} Linen Charge * {int(row['Item Count'] / row['People'])} nights"
         output_data.append({
-            'Item Count': row['Item Count'],
-            'Unit Amount': row['Unit Amount'],
-            'Charge Amount': row['Charge Amount'],
-            'Date': row['Date'],
-            'Description': description
+            'Field': 'Item Count',
+            'Value': row['Item Count'],
+            'Date': row['Date']
         })
-        
-        if linen_option:
-            linen_description = f"{row['People']} people * ${linen_charge_per_person_per_night} Linen Charge * {int(row['Item Count'] / row['People'])} nights"
-            output_data.append({
-                'Item Count': row['Item Count'],
-                'Unit Amount': linen_charge_per_person_per_night,
-                'Charge Amount': linen_charge,
-                'Date': row['Date'],
-                'Description': linen_description
-            })
+        output_data.append({
+            'Field': 'Unit Amount',
+            'Value': linen_charge_per_person_per_night,
+            'Date': row['Date']
+        })
+        output_data.append({
+            'Field': 'Charge Amount',
+            'Value': linen_charge,
+            'Date': row['Date']
+        })
+        output_data.append({
+            'Field': 'Description',
+            'Value': linen_description,
+            'Date': row['Date']
+        })
 
-    output_df = pd.DataFrame(output_data)
+output_df = pd.DataFrame(output_data)
 
-    # Reorder columns
-    output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description']]
+# Pivot the DataFrame to make it vertical
+vertical_df = output_df.pivot(index='Date', columns='Field', values='Value')
 
-    st.write(output_df)
+# Reset the index to make 'Date' a column again
+vertical_df.reset_index(inplace=True)
+
+# Display the DataFrame
+st.write(vertical_df)
 else:
     st.write("Please upload a CSV file to proceed.")
