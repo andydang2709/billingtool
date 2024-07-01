@@ -6,13 +6,11 @@ st.title('Billing Tool')
 uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_csv(uploaded_file, usecols=['First Name', 'Last Name', 'Check In', 'Check Out', 'Room Type'])
 
     def clean_data(df):
         # Drop rows with missing data in column: 'First Name'
         df = df.dropna(subset=['First Name'])
-        # Select columns: 'First Name', 'Last Name' and 3 other columns
-        df = df.loc[:, ['First Name', 'Last Name', 'Check In', 'Check Out', 'Room Type']]
         # Change column type to datetime64[ns] for columnn 'Check In' and 'Check Out'
         df['Check In'] = pd.to_datetime(df['Check In']).dt.date
         df['Check Out'] = pd.to_datetime(df['Check Out']).dt.date
