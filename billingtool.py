@@ -11,7 +11,7 @@ if uploaded_file is not None:
     def clean_data(df):
         # Drop rows with missing data in column: 'First Name'
         df = df.dropna(subset=['First Name'])
-        # Change column type to datetime64[ns] for columnn 'Check In' and 'Check Out'
+        # Change column type to datetime64[ns] for column 'Check In' and 'Check Out'
         df['Check In'] = pd.to_datetime(df['Check In']).dt.date
         df['Check Out'] = pd.to_datetime(df['Check Out']).dt.date
         df = df.reset_index(drop=True)
@@ -44,11 +44,11 @@ if uploaded_file is not None:
         'Check Out': 'Date'
     }, inplace=True)
 
-# Linen charge per person per night
+    # Linen charge per person per night
     linen_charge_per_person_per_night = 5
     commuter_charge_per_day = 5
 
-# Ask for commuter groups information
+    # Ask for commuter groups information
     commuter_groups = st.number_input("Number of commuter groups", min_value=0, step=1)
 
     commuter_info = []
@@ -70,15 +70,14 @@ if uploaded_file is not None:
             'commuter_days_stayed': commuter_days_stayed
         })
 
-
-# Generate the description column and separate linen charge rows
+    # Generate the description column and separate linen charge rows
     output_data = []
     for index, row in total_charge_per_group.iterrows():
         linen_option = st.checkbox(f"Include linen charge for group from {row['Check In']} to {row['Date']}", key=f"{row['Check In']}-{row['Date']}-{row['Room Type']}")
         linen_charge = row['People'] * linen_charge_per_person_per_night * int(row['Item Count'] / row['People']) if linen_option else 0
         total_charge = row['Charge Amount']
         description = f"{row['People']} people * ${row['Unit Amount']} {row['Room Type']} * {int(row['Item Count'] / row['People'])} nights"
-        
+
         output_data.append({
             'Item Count': row['Item Count'],
             'Unit Amount': row['Unit Amount'],
@@ -86,8 +85,8 @@ if uploaded_file is not None:
             'Date': row['Date'],
             'Description': description
         })
-        
-        if linen_option:
+
+        if (linen_option):
             linen_description = f"{row['People']} people * ${linen_charge_per_person_per_night} Linen Charge * {int(row['Item Count'] / row['People'])} nights"
             output_data.append({
                 'Item Count': row['Item Count'],
@@ -97,7 +96,7 @@ if uploaded_file is not None:
                 'Description': linen_description
             })
 
-# Add commuter charges for each group
+    # Add commuter charges for each group
     for commuter in commuter_info:
         if commuter['num_commuters'] > 0:
             commuter_description = f"{commuter['num_commuters']} commuters * ${commuter['commuter_charge_per_day']} Commuter Charge * {commuter['commuter_days_stayed']} days"
@@ -110,6 +109,21 @@ if uploaded_file is not None:
             })
 
     output_df = pd.DataFrame(output_data)
+
+    # Sort and group the data
+    room_type_order = {
+        'Single': 1,
+        'Double': 2,
+        'Single Suite': 3,
+        'Double Suite': 4,
+        'Linen Charge': 5
+    }
+    output_df['Group'] = output_df['Description'].apply(lambda x: 'Linen Charge' if 'Linen Charge' in x else x.split(' ')[2])
+    output_df['Group Order'] = output_df['Group'].map(room_type_order)
+    output_df = output_df.sort_values(by=['Group Order', 'Date'])
+
+    # Drop helper columns
+    output_df = output_df.drop(columns=['Group', 'Group Order'])
 
     # Reorder columns
     output_df = output_df[['Item Count', 'Unit Amount', 'Charge Amount', 'Date', 'Description']]
